@@ -6,6 +6,7 @@ This program is free software and comes with ABSOLUTELY NO WARRANTY; for details
 """
 
 import json
+import importlib.util
 import logging
 import os.path
 import re
@@ -22,6 +23,36 @@ import unicodedata
 class DeprecatedException(Exception):
     pass
 
+
+class ModuleLoader:
+    def __init__(self, settings_file, module_name) -> None:
+        self.module_name = module_name
+        self.loaded = False
+        self.module = None
+
+        self._module_path = None
+        self._settings_file = settings_file
+
+    def load(self) -> None:
+        try:
+            specification = importlib.util.spec_from_file_location(
+                self.module_name, self.module_path)
+            self.module = importlib.util.module_from_spec(specification)
+            specification.loader.exec_module(self.module)
+            self.loaded = True
+        except (FileNotFoundError, ImportError, OSError):
+            self.module = None
+            self.loaded = False
+
+    @property
+    def module_path(self) -> str:
+        try:
+            with open(get_configuration_file_path(self._settings_file), 'r') as fp:
+                self._module_path = json.load(fp)
+        except (FileNotFoundError, ImportError, OSError):
+            self._module_path = None
+
+        return self._module_path
 
 def get_labext_version():
     """
