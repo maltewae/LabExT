@@ -12,7 +12,6 @@ from os.path import dirname, join
 
 from LabExT.PluginLoader import PluginLoader
 
-
 class StageError(RuntimeError):
     pass
 
@@ -53,7 +52,11 @@ def assert_driver_loaded(func):
 
 class Stage(ABC):
     _logger = logging.getLogger()
+    
+    description = None
+    connection_type = None
     driver_loaded = False
+    driver_specifiable = False
 
     @classmethod
     def find_stage_classes(cls, subdir="Stages") -> list:
@@ -166,6 +169,14 @@ class Stage(ABC):
 
     @abstractmethod
     def lower_stage(self):
+        pass
+
+    @abstractmethod
+    def set_lift_distance(self, um: float):
+        pass
+
+    @abstractmethod
+    def get_lift_distance(self) -> float:
         pass
 
     @abstractmethod

@@ -92,3 +92,11 @@ class Device:
 
         self.logger.debug('Requested data of device: %s', data)
         return data
+
+    @property
+    def in_position(self):
+        return self._in_position
+
+    @property
+    def out_position(self):
+        return self._out_position

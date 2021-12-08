@@ -5,6 +5,7 @@ LabExT  Copyright (C) 2021  ETH Zurich and Polariton Technologies AG
 This program is free software and comes with ABSOLUTELY NO WARRANTY; for details see LICENSE file.
 """
 
+from enum import Enum
 import json
 import logging
 import os.path
@@ -21,6 +22,16 @@ import unicodedata
 
 class DeprecatedException(Exception):
     pass
+
+
+class CustomEnum(Enum):
+    @classmethod
+    def has_value(cls, value):
+        """
+        Checks if a value is defined by given enum.
+        """
+        value = value.value if type(value) == cls else value
+        return value in cls._value2member_map_
 
 
 def get_labext_version():

@@ -4,6 +4,7 @@
 LabExT  Copyright (C) 2021  ETH Zurich and Polariton Technologies AG
 This program is free software and comes with ABSOLUTELY NO WARRANTY; for details see LICENSE file.
 """
+
 import sys
 import json
 import time
@@ -11,6 +12,7 @@ import ctypes as ct
 from enum import Enum
 from tkinter import TclError
 from typing import List
+from LabExT.Movement.Calibration import Axis
 
 from LabExT.Movement.Stage import Stage, StageError, assert_stage_connected, assert_driver_loaded
 from LabExT.Utils import get_configuration_file_path
@@ -39,12 +41,6 @@ class MovementType(Enum):
     ABSOLUTE = 1
 
 
-class Axis(Enum):
-    """Enumerate different channels. Each channel represents one axis."""
-    X = 0
-    Y = 1
-    Z = 2
-
 
 class Stage3DSmarAct(Stage):
     """Implementation of a SmarAct stage. Communication with the devices using the driver version 1.
@@ -57,7 +53,10 @@ class Stage3DSmarAct(Stage):
         Dict of channel objects
     """
 
+    description = 'SmarAct Modular Control System'
+    connection_type = 'USB'
     driver_loaded = MCS_LOADED
+    driver_specifiable = True
     driver_path_dialog = None
 
     @classmethod
@@ -387,7 +386,7 @@ class Stage3DSmarAct(Stage):
     # Setup and initialization
 
     def __init__(self, address):
-        """Constructs all necessary attributes of the Stage3DSmarAct object.
+        """Constructs all necessary attributes of the Stage3DSmarAct object. Do not open a connection here, use the connect() method instead.
 
         Calls stage super class to complete initialization.
         """
@@ -460,11 +459,18 @@ class Stage3DSmarAct(Stage):
     def z_axis_direction(self):
         return self._z_axis_direction
 
+    @property
+    def z_axis_inverted(self):
+        return self.z_axis_direction == -1
+
     @z_axis_direction.setter
     def z_axis_direction(self, newdir):
         if newdir not in [-1, 1]:
             raise ValueError("Z axis direction can only be 1 or -1.")
         self._z_axis_direction = newdir
+
+    def toggle_z_axis_direction(self):
+        self.z_axis_direction *= -1
 
     @property
     def stage_lifted_up(self):
@@ -675,6 +681,31 @@ class Stage3DSmarAct(Stage):
         self.channels[Axis.Y].move(diff=y, mode=MovementType.RELATIVE)
 
     @assert_driver_loaded
+    @assert_stage_connected
+    def move_relative2(self, x_um=0, y_um=0, z_um=0):
+        """Performs a relative movement by x, y and z. Specified in units of micrometers.
+
+        Parameters
+        ----------
+        x : int
+            Movement in x direction by x measured in um.
+        y : int
+            Movement in y direction by y measured in um.
+        z : int
+            Movement in z direction by z measured in um.
+        """
+
+        self._logger.debug(
+            'Want to relative move %s to x = %s um, y = %s um and z = %s um',
+            self.address,
+            x_um,
+            y_um,
+            z_um)
+
+        self.channels[Axis.X].move(diff=x_um, mode=MovementType.RELATIVE)
+        self.channels[Axis.Y].move(diff=y_um, mode=MovementType.RELATIVE)
+        self.channels[Axis.Z].move(diff=z_um, mode=MovementType.RELATIVE)
+
     @assert_stage_connected
     def move_absolute(self, pos):
         """Performs an absolute movement to the specified position in units of micrometers.

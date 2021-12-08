@@ -6,9 +6,11 @@ This program is free software and comes with ABSOLUTELY NO WARRANTY; for details
 """
 
 import logging
+from os import stat
 from platform import system
 from tkinter import Frame, Menu, Checkbutton, \
     Label, StringVar, OptionMenu, LabelFrame, Button, scrolledtext
+from tkinter.constants import DISABLED, NORMAL
 
 from LabExT.Logs.LoggingWidgetHandler import LoggingWidgetHandler
 from LabExT.Utils import get_labext_version
@@ -25,18 +27,24 @@ class MainWindowContextMenu(Menu):
     """
     The context menu up top. Upon instantiation creates labels and submenus.
     """
-    def __init__(self, parent, menu_listener):
+    def __init__(self, parent, menu_listener, experiment_manager):
         self.parent = parent
+        self.experiment_manager = experiment_manager
+
+        self.mover = self.experiment_manager.mover_new
+
         self._menu_listener = menu_listener
         Menu.__init__(self, self.parent)
         self._file = Menu(self, tearoff=0)
         self._movement = Menu(self, tearoff=0)
+        self._movement_new = Menu(self, tearoff=0)
         self._view = Menu(self, tearoff=0)
         self._settings = Menu(self, tearoff=0)
         self._help = Menu(self, tearoff=0)
 
         self.add_cascade(label="File", menu=self._file)
         self.add_cascade(label="Movement", menu=self._movement)
+        self.add_cascade(label="Movement [Beta]", menu=self._movement_new)
         self.add_cascade(label="View", menu=self._view)
         self.add_cascade(label="Settings", menu=self._settings)
         self.add_cascade(label="Help", menu=self._help)
@@ -71,6 +79,50 @@ class MainWindowContextMenu(Menu):
         self._movement.add_command(
             label="Search for Peak",
             command=self._menu_listener.client_search_for_peak)
+
+        self._movement_new.add_command(
+            label="Current Mover State: {}".format(self.mover.state),
+            state=DISABLED)
+        self._movement_new.add_separator()
+        self._movement_new.add_command(
+            label="Configure Stages...",
+            command=self._menu_listener.client_movement_wizard)
+        self._movement_new.add_command(
+            label="Calibrate Stages...",
+            command=self._menu_listener.client_stage_calibration,
+            state=NORMAL if self.mover.has_connected_stages else DISABLED)
+        self._movement_new.add_separator()
+
+        if self.mover.has_connected_stages:
+            for calibration in self.mover.calibrations.values():
+                calibration_menu = Menu(self._movement_new)
+                calibration_menu.add_command(
+                    label=str(calibration),
+                    state=DISABLED)
+                calibration_menu.add_separator()
+                calibration_menu.add_command(
+                    label="Find Reference Point")
+                calibration_menu.add_command(
+                    label="Move Relative (Not Coordinate System fixed)",
+                    state=DISABLED)
+                calibration_menu.add_command(
+                    label="Move Absolute (Not Single Point fixed)",
+                    state=DISABLED)
+                
+                self._movement_new.add_cascade(label=calibration.short_str(), menu=calibration_menu) 
+
+        self._movement_new.add_separator()
+        self._movement_new.add_command(
+            label="Move to Device (Not fully calibrated)",
+            state=DISABLED)
+        self._movement_new.add_separator()
+        self._movement_new.add_command(
+            label="Search for Peak",
+            state=NORMAL if self.experiment_manager.mover_new.has_connected_stages else DISABLED)
+        self._movement_new.add_separator()
+        self._movement_new.add_command(
+            label="Reset Mover Settings..."
+        )
 
         self._view.add_command(
             label="Open Extra Plots",
@@ -457,7 +509,7 @@ class MainWindowFrame(Frame):
         Sets up the menu bar up top.
         """
         self.menu_listener = menu_listener
-        self.menu = MainWindowContextMenu(self, menu_listener)
+        self.menu = MainWindowContextMenu(self, menu_listener, self.experiment_manager)
 
     def set_up_control_frame(self):
         """
@@ -545,15 +597,7 @@ class MainWindowView:
         """
         Setup main window
         """
-        self.menu_listener = MListener(self.experiment_manager, self.root)
-
-        #
-        # add menu bar
-        #
-        self.frame.set_up_menu(self.menu_listener)
-
-        self.logger.debug('Adding menu bar..')
-        self.root.config(menu=self.frame.menu)
+        self.setup_menu_and_listener()
 
         self.frame.set_up_control_frame()
 
@@ -563,3 +607,11 @@ class MainWindowView:
         #
 
         self.frame.set_up_auxiliary_tables()
+
+    
+    def setup_menu_and_listener(self):
+        self.menu_listener = MListener(self.experiment_manager, self.root)
+        self.frame.set_up_menu(self.menu_listener)
+        self.logger.debug('Adding menu bar..')
+        self.root.config(menu=self.frame.menu)
+

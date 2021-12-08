@@ -23,10 +23,21 @@ from LabExT.View.ExtraPlots import ExtraPlots
 from LabExT.View.InstrumentConnectionDebugger import InstrumentConnectionDebugger
 from LabExT.View.LiveViewer.LiveViewerController import LiveViewerController
 from LabExT.View.MoveDeviceWindow import MoveDeviceWindow
+from LabExT.View.MovementWizard.MovementWizardController import MovementWizardController
+from LabExT.View.StageCalibration.StageCalibrationController import StageCalibrationController
 from LabExT.View.ProgressBar.ProgressBar import ProgressBar
 from LabExT.View.SearchForPeakPlotsWindow import SearchForPeakPlotsWindow
 from LabExT.View.StageDriverSettingsDialog import StageDriverSettingsDialog
 
+
+def lift_window(window):
+    try:
+        window.deiconify()
+        window.lift()
+        window.focus_set()
+        return True
+    except TclError:
+        return False
 
 class MListener:
     """Listens to the events triggered by clicks on the menu bar.
@@ -57,6 +68,8 @@ class MListener:
         self.stage_driver_settings_dialog_toplevel = None
         self.pgb = None
         self.import_done = False
+        self.stage_calibration_window = None
+        self.movement_wizard_window = None
 
     def client_new_experiment(self):
         """Called when user wants to start new Experiment. Calls the
@@ -190,6 +203,14 @@ class MListener:
         new_window = Toplevel(self._root)
         new_window.lift()
         ConfigureStageWindow(new_window, self._experiment_manager)
+
+    def client_movement_wizard(self):
+        if self.movement_wizard_window is None or not lift_window(self.movement_wizard_window):
+            self.movement_wizard_window = MovementWizardController(self._root, self._experiment_manager).view
+
+    def client_stage_calibration(self):
+        if self.stage_calibration_window is None or not lift_window(self.stage_calibration_window):
+            self.stage_calibration_window = StageCalibrationController(self._root, self._experiment_manager).view
 
     def client_move_stages(self):
         """Called when the user wants to move the stages manually.
