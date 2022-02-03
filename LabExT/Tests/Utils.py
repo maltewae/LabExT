@@ -8,6 +8,7 @@ This program is free software and comes with ABSOLUTELY NO WARRANTY; for details
 
 import _tkinter
 import tkinter
+import pytest
 from unittest import TestCase
 
 
@@ -24,6 +25,13 @@ class TKinterTestCase(TestCase):
     def pump_events(self):
         while self.root.dooneevent(_tkinter.ALL_EVENTS | _tkinter.DONT_WAIT):
             pass
+
+
+def mark_as_laboratory_test(klass):
+    """
+    Decorator to mark test as laboratory tests. These will be exclude, when run on CI.
+    """
+    return pytest.mark.skipif(not pytest.run_laboratory_tests, reason="skip tests that require laboratory equipment.")(klass)
 
 
 def ask_user_yes_no(ask_string="Is one kg of feathers lighter than one kg of iron?", default_answer=True):
