@@ -5,15 +5,15 @@ LabExT  Copyright (C) 2022  ETH Zurich and Polariton Technologies AG
 This program is free software and comes with ABSOLUTELY NO WARRANTY; for details see LICENSE file.
 """
 
-from tkinter import DISABLED, NORMAL
 import unittest
-from unittest import mock
+
+from tkinter import DISABLED, NORMAL
 from unittest.mock import Mock, patch
+from LabExT.Tests.Utils import TKinterTestCase
 from LabExT.Movement.Calibration import DevicePosition, Orientation
 from LabExT.Movement.MoverNew import MoverError, MoverNew
-
 from LabExT.Movement.Stages.DummyStage import DummyStage
-from LabExT.Tests.Utils import TKinterTestCase
+
 from LabExT.View.MovementWizard.MovementWizardController import MovementWizardController, Stage
 
 
@@ -353,7 +353,7 @@ class MovementWizardIntegrationTest(TKinterTestCase):
         wizard.xy_speed_var.set(0)
 
         # Wizard warns for zero speed, when try to finish
-        with mock.patch("LabExT.View.MovementWizard.MovementWizardView.messagebox.askokcancel", autospec=True) as messagebox_mock:
+        with patch("LabExT.View.MovementWizard.MovementWizardView.messagebox.askokcancel", autospec=True) as messagebox_mock:
             messagebox_mock.return_value = False
 
             wizard._finish_button.invoke()
@@ -366,7 +366,7 @@ class MovementWizardIntegrationTest(TKinterTestCase):
         wizard.z_speed_var.set(200)
         wizard.xy_acceleration_var.set(100)
 
-        with mock.patch("LabExT.View.MovementWizard.MovementWizardView.messagebox.showinfo", autospec=True) as messagebox_mock:
+        with patch("LabExT.View.MovementWizard.MovementWizardView.messagebox.showinfo", autospec=True) as messagebox_mock:
             wizard._finish_button.invoke()
 
             self.assertTrue(self.mover.has_connected_stages)

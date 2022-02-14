@@ -6,15 +6,14 @@ This program is free software and comes with ABSOLUTELY NO WARRANTY; for details
 """
 
 from functools import partial
-from tkinter import W, DoubleVar, Label, Button, Entry, ttk, messagebox, StringVar, OptionMenu, DISABLED, NORMAL, VERTICAL, Frame, Button, Label, DISABLED, NORMAL, LEFT, RIGHT, TOP, X
-from turtle import position
+from tkinter import DoubleVar, Label, Button, Entry, ttk, messagebox, StringVar, OptionMenu, Frame, Button, Label, DISABLED, NORMAL, VERTICAL, W, LEFT, RIGHT, TOP, X
 from typing import Tuple, Type
-
-from LabExT.Movement.Calibration import DevicePosition, Orientation
 
 from LabExT.View.Controls.CustomFrame import CustomFrame
 from LabExT.View.Controls.CustomTable import CustomTable
 from LabExT.View.Controls.Wizard import Wizard
+
+from LabExT.Movement.Calibration import DevicePosition, Orientation
 
 
 class MovementWizardView(Wizard):

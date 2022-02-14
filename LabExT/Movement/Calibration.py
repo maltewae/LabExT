@@ -6,9 +6,7 @@ This program is free software and comes with ABSOLUTELY NO WARRANTY; for details
 """
 
 from enum import Enum, auto
-import logging
-
-from LabExT.Movement.Stage import Stage, StageError
+from LabExT.Movement.Stage import StageError
 
 
 class Orientation(Enum):
@@ -53,7 +51,6 @@ class Calibration:
     """
 
     def __init__(self, mover, stage, orientation, device_position) -> None:
-        self.logger = logging.getLogger()
         self.mover = mover
         self.stage = stage
 

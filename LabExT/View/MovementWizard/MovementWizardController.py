@@ -8,7 +8,6 @@ This program is free software and comes with ABSOLUTELY NO WARRANTY; for details
 import importlib
 import sys
 from typing import Type
-from LabExT.Movement.Calibration import DevicePosition, Orientation
 
 from LabExT.Movement.Stage import Stage, StageError
 from LabExT.View.MovementWizard.MovementWizardView import MovementWizardView

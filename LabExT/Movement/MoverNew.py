@@ -5,13 +5,12 @@ LabExT  Copyright (C) 2022  ETH Zurich and Polariton Technologies AG
 This program is free software and comes with ABSOLUTELY NO WARRANTY; for details see LICENSE file.
 """
 
-import logging
 from bidict import bidict, ValueDuplicationError, KeyDuplicationError, OnDup, RAISE
-from typing import Dict, Tuple, Type, List
+from typing import Type, List
 from functools import wraps
 
-from LabExT.Movement.Stage import Stage, StageError
-from LabExT.Movement.Calibration import Calibration, DevicePosition, Orientation, State
+from LabExT.Movement.Stage import Stage
+from LabExT.Movement.Calibration import Calibration, DevicePosition, Orientation
 
 
 def assert_connected_stages(func):
@@ -63,7 +62,6 @@ class MoverNew:
             Current instance of ExperimentManager.
         """
         self.experiment_manager = experiment_manager
-        self.logger = logging.getLogger()
 
         self._stage_classes: List[Stage] = []
         self._available_stages: List[Type[Stage]] = []
@@ -147,8 +145,7 @@ class MoverNew:
         """
         Returns a list of all connected stages.
         """
-        return [c.stage for c in self._calibrations.values()
-                if c.stage.connected]
+        return [s for s in self.active_stages if s.connected]
 
     @property
     def has_connected_stages(self) -> bool:
