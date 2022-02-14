@@ -5,7 +5,7 @@ LabExT  Copyright (C) 2022  ETH Zurich and Polariton Technologies AG
 This program is free software and comes with ABSOLUTELY NO WARRANTY; for details see LICENSE file.
 """
 
-from enum import Enum
+from enum import Enum, auto
 import logging
 
 from LabExT.Movement.Stage import Stage, StageError
@@ -15,10 +15,10 @@ class Orientation(Enum):
     """
     Enumerate different state orientations.
     """
-    LEFT = 0
-    RIGHT = 1
-    TOP = 2
-    BOTTOM = 3
+    LEFT = auto()
+    RIGHT = auto()
+    TOP = auto()
+    BOTTOM = auto()
 
     def __str__(self) -> str:
         return self.name.capitalize()
@@ -26,8 +26,8 @@ class Orientation(Enum):
 
 class DevicePosition(Enum):
     """Enumerate different device coordinate positions."""
-    INPUT = 0
-    OUTPUT = 1
+    INPUT = auto()
+    OUTPUT = auto()
 
     def __str__(self) -> str:
         return self.name.capitalize()
