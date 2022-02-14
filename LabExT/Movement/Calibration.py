@@ -57,8 +57,6 @@ class Calibration:
         self.mover = mover
         self.stage = stage
 
-        # TODO: Make check if (1) stage is connected, (2) stage is member of
-        # mover.stages
         self._state = State.CONNECTED if stage.connected else State.UNINITIALIZED
         self._orientation = orientation
         self._device_position = device_position
