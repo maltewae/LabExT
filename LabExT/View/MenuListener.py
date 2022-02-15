@@ -26,6 +26,7 @@ from LabExT.View.MoveDeviceWindow import MoveDeviceWindow
 from LabExT.View.MovementWizard.MovementWizardController import MovementWizardController
 from LabExT.View.ProgressBar.ProgressBar import ProgressBar
 from LabExT.View.SearchForPeakPlotsWindow import SearchForPeakPlotsWindow
+from LabExT.View.StageCalibration.StageCalibrationController import StageCalibrationController
 from LabExT.View.StageDriverSettingsDialog import StageDriverSettingsDialog
 
 
@@ -59,6 +60,7 @@ class MListener:
         self.pgb = None
         self.import_done = False
         self.movement_wizard = None
+        self.calibraton_wizard = None
 
     def client_new_experiment(self):
         """Called when user wants to start new Experiment. Calls the
@@ -191,6 +193,14 @@ class MListener:
         """
         if self.movement_wizard is None or not try_to_lift_window(self.movement_wizard.view):
             self.movement_wizard = MovementWizardController(
+                self._experiment_manager, self._experiment_manager.mover_new, parent=self._root)
+
+    def client_calibrate_mover(self):
+        """
+        Open wizard to calibrate the Mover.
+        """
+        if self.calibraton_wizard is None or not try_to_lift_window(self.calibraton_wizard.view):
+            self.calibraton_wizard = StageCalibrationController(
                 self._experiment_manager, self._experiment_manager.mover_new, parent=self._root)
 
     def client_configure_stages(self):
